@@ -1,4 +1,5 @@
 import Foundation
+import XCTest
 
 /*
  Design and implement a data structure for Least Recently Used (LRU) cache.
@@ -105,3 +106,40 @@ class LRUCache {
     node?.prev?.next = node?.next
   }
 }
+
+class TestSolution: XCTestCase {
+  
+  override func setUp() {
+    super.setUp()
+  }
+  
+  func test1() {
+    let cache = LRUCache(2)
+    let notFound = -1
+    
+    cache.put(1, 1)
+    cache.put(2, 2)
+    XCTAssertTrue(cache.get(1) == 1, "Incorrect value")
+    cache.put(3, 3)
+    XCTAssertTrue(cache.get(2) == notFound, "Incorrect value")
+    cache.put(4, 4)
+    XCTAssertTrue(cache.get(1) == notFound, "Incorrect value")
+    XCTAssertTrue(cache.get(3) == 3, "Incorrect value")
+    XCTAssertTrue(cache.get(4) == 4, "Incorrect value")
+    XCTAssertTrue(cache.get(5) == notFound, "Incorrect value")
+    
+  }
+}
+
+class TestObserver: NSObject, XCTestObservation {
+    func testCase(_ testCase: XCTestCase,
+                  didFailWithDescription description: String,
+                  inFile filePath: String?,
+                  atLine lineNumber: Int) {
+        assertionFailure(description, line: UInt(lineNumber))
+    }
+}
+
+let testObserver = TestObserver()
+XCTestObservationCenter.shared.addTestObserver(testObserver)
+TestSolution.defaultTestSuite.run()
