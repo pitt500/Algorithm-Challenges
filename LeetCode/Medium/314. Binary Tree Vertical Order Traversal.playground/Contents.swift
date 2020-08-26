@@ -81,8 +81,12 @@ class Solution {
     }
     
     var ans = [Int: [Int]]()
+    
+    //we use two stacks to simulate a queue
     var waitingQueue: [TaggedNode] = [(root,0)]
     var processQueue: [TaggedNode] = []
+    
+    //save range of columns to avoid sorting
     var minColumn = 0
     var maxColumn = 0
     
