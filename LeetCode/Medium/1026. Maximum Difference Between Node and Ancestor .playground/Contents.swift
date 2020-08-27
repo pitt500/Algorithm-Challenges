@@ -81,7 +81,7 @@ class TestSolution: XCTestCase {
     
     let expected = 7
     let actual = solution.maxAncestorDiff(root)
-    //Reference should be different
+    
     XCTAssertTrue(expected == actual, "\nexpected value is \(expected), but actual is \(actual)\n")
   }
   
