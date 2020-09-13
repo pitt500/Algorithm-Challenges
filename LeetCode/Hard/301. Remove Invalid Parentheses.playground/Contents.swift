@@ -21,43 +21,88 @@ import XCTest
  
  */
 
-class Solution {
-  private let signs: Set<Character> = ["+", "-"]
+class Queue {
+  private var waiting: [String] = []
+  private var process: [String] = []
   
-  func isNumber(_ s: String) -> Bool {
-    let s = Array(s.trimmingCharacters(in: .whitespaces))
-    var eFound = false
-    var atLeastOneNumber = false
-    var dotFound = false
+  func pop() -> String? {
+    fillProcessIfNeeded()
+    return process.popLast()
+  }
+  
+  func append(_ s: String) {
+    waiting.append(s)
+  }
+  
+  var hasValues: Bool {
+    return !waiting.isEmpty || !process.isEmpty
+  }
+  
+  private func fillProcessIfNeeded() {
+    if process.isEmpty {
+      while !waiting.isEmpty {
+        process.append(waiting.removeLast())
+      }
+    }
+  }
+}
+
+class Solution {
+  func removeInvalidParentheses(_ s: String) -> [String] {
+    var visited = Set<String>()
+    var result = [String]()
     
-    for i in 0..<s.count {
-      let c = s[i]
+    let queue = Queue()
+    var found = false
+    
+    queue.append(s)
+    visited.insert(s)
+    
+    while queue.hasValues {
+      let current = queue.pop()!
       
-      if c.isNumber {
-        atLeastOneNumber = true
-      } else if c == "e" {
-        if eFound || !atLeastOneNumber {
-          return false //e can't appears without at least one number
-        }
+      if isValid(current) {
+        result.append(current)
+        found = true
+      }
+      
+      if found {
+        //No more enqueuing, just checking if remaining items in queue are valid too.
+        continue
+      }
+      
+      let arrayCurr = Array(current)
+      for i in 0..<arrayCurr.count where isParenthesis(arrayCurr[i]) {
+        //String excluding current parenthesis
+        let temp = String(arrayCurr[0..<i] + arrayCurr[(i+1)...])
         
-        eFound = true
-        atLeastOneNumber = false // reset to find an integer after e
-      } else if c == "." {
-        if eFound || dotFound {
-          return false // . can only appear once before e
+        if !visited.contains(temp) {
+          visited.insert(temp)
+          queue.append(temp)
         }
-        
-        dotFound = true
-      } else if signs.contains(c) {
-        if i != 0 && s[i-1] != "e" {
-          return false // signs can appear onlt at i == 0 or right after e
-        }
-      } else {
-        return false
       }
     }
     
-    return atLeastOneNumber
+    return result
+  }
+  
+  private func isValid(_ s: String) -> Bool {
+    var count = 0
+    
+    for c in s {
+      if c == "(" {
+        count += 1
+      } else if c == ")" {
+        guard count > 0 else { return false }
+        count -= 1
+      }
+    }
+    
+    return count == 0
+  }
+  
+  private func isParenthesis(_ c: Character) -> Bool {
+    return c == "(" || c == ")"
   }
 }
 
@@ -71,40 +116,25 @@ class TestSolution: XCTestCase {
   }
   
   func test1() {
-    let expected = true
-    let actual = solution.isNumber("1234545")
+    let expected = ["(())()","()()()"]
+    let actual = solution.removeInvalidParentheses("()())()")
     
     XCTAssertTrue(expected == actual, "\nexpected value is \(expected), but actual is \(actual)\n")
   }
   
   func test2() {
-    let expected = false
-    let actual = solution.isNumber(".1.")
+    let expected = ["(a)()()", "(a())()"].sorted()
+    let actual = solution.removeInvalidParentheses("(a)())()").sorted()
     
     XCTAssertTrue(expected == actual, "\nexpected value is \(expected), but actual is \(actual)\n")
   }
   
   func test3() {
-    let expected = true
-    let actual = solution.isNumber("+1234545e123")
+    let expected = [""]
+    let actual = solution.removeInvalidParentheses(")(")
     
     XCTAssertTrue(expected == actual, "\nexpected value is \(expected), but actual is \(actual)\n")
   }
-  
-  func test4() {
-    let expected = false
-    let actual = solution.isNumber("+e123")
-    
-    XCTAssertTrue(expected == actual, "\nexpected value is \(expected), but actual is \(actual)\n")
-  }
-  
-  func test5() {
-    let expected = false
-    let actual = solution.isNumber("-123e32.1")
-    
-    XCTAssertTrue(expected == actual, "\nexpected value is \(expected), but actual is \(actual)\n")
-  }
-  
 
 }
 
