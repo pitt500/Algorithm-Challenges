@@ -3,15 +3,16 @@ import XCTest
 
 class Solution {
     func isPalindrome(_ s: String) -> Bool {
-        let word = s.filter { $0.isNumber || $0.isLetter }.lowercased()
+        let word = s
+            .filter { $0.isNumber || $0.isLetter }
+            .lowercased()
         if word.isEmpty { return true }
 
         var startIndex = word.startIndex
         var endIndex = word.index(before: word.endIndex)
 
         while startIndex < endIndex {
-            guard word[startIndex] == word[endIndex]
-            else {
+            if word[startIndex] != word[endIndex] {
                 return false
             }
 
